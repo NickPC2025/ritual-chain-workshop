@@ -7,10 +7,20 @@ export default defineConfig({
     profiles: {
       default: {
         version: "0.8.24",
+        settings: {
+          // viaIR eliminates stack-too-deep errors that arise from functions
+          // returning many local variables (e.g. the 13-field getBounty tuple).
+          viaIR: true,
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
       },
       production: {
         version: "0.8.24",
         settings: {
+          viaIR: true,
           optimizer: {
             enabled: true,
             runs: 200,
@@ -19,6 +29,7 @@ export default defineConfig({
       },
     },
   },
+
   networks: {
     hardhatMainnet: {
       type: "edr-simulated",

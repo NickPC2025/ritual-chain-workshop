@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import aiJudgeAbi from "@/abi/AIJudge";
+import aiJudgeAbi from "@/abi/AIJudgeCommitReveal";
 import { contractAddress } from "@/config/contract";
 import { ritualChain } from "@/config/wagmi";
-import type { Bounty } from "@/lib/bounty";
+import type { CommitRevealBounty } from "@/lib/bounty";
 import { decodeAiReview } from "@/lib/aiReview";
 import { formatReward } from "@/lib/format";
 import { useWriteTx } from "@/hooks/useWriteTx";
@@ -28,11 +28,11 @@ export function FinalizeWinner({
   onFinalized,
 }: {
   bountyId: bigint;
-  bounty: Bounty;
+  bounty: CommitRevealBounty;
   isOwner: boolean;
   onFinalized: () => void;
 }) {
-  const count = Number(bounty.submissionCount);
+  const count = Number(bounty.totalCommitted);
   const recommended = decodeAiReview(bounty.aiReview)?.parsed?.winnerIndex;
 
   // The input is prefilled with the AI recommendation until the owner edits it.

@@ -61,10 +61,10 @@ export function LoadBountyPanel({
 
         {recentIds.length > 0 && (
           <div>
-            <div className="mb-1 text-[11px] uppercase tracking-wide text-zinc-500">
+            <div style={{ marginBottom: 6, fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(0,255,136,0.38)" }}>
               Recent
             </div>
-            <div className="flex flex-wrap gap-1.5">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {recentIds.map((id) => (
                 <button
                   key={id}
@@ -72,10 +72,10 @@ export function LoadBountyPanel({
                     setOverride(null);
                     load(id);
                   }}
-                  className={`rounded-lg px-2 py-1 font-mono text-xs ring-1 ring-inset transition-colors ${
+                  className={`bounty-pill ${
                     selectedId?.toString() === id
-                      ? "bg-indigo-500/20 text-indigo-200 ring-indigo-500/40"
-                      : "bg-black/20 text-zinc-300 ring-white/10 hover:bg-white/10"
+                      ? "bounty-pill-active"
+                      : "bounty-pill-inactive"
                   }`}
                 >
                   #{id}

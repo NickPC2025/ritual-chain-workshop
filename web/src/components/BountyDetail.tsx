@@ -1,7 +1,7 @@
 "use client";
 
-import type { Bounty } from "@/lib/bounty";
-import { getBountyStatus, STATUS_META } from "@/lib/bounty";
+import type { CommitRevealBounty } from "@/lib/bounty";
+import { getCRBountyStatus, CR_STATUS_META } from "@/lib/bounty";
 import { useNow } from "@/hooks/useNow";
 import { shortenAddress, formatReward, formatTimestamp, formatRelative } from "@/lib/format";
 import { Card, CardHeader, CardBody, Badge, Stat } from "@/components/ui";
@@ -12,12 +12,12 @@ export function BountyDetail({
   isOwner,
 }: {
   bountyId: bigint;
-  bounty: Bounty;
+  bounty: CommitRevealBounty;
   isOwner: boolean;
 }) {
-  const now = useNow();
-  const status = getBountyStatus(bounty, now / 1000);
-  const meta = STATUS_META[status];
+  const now    = useNow();
+  const status = getCRBountyStatus(bounty, now / 1000);
+  const meta   = CR_STATUS_META[status];
 
   return (
     <Card>
@@ -31,7 +31,7 @@ export function BountyDetail({
           </span>
         }
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {isOwner && <Badge tone="indigo">You own this</Badge>}
             <Badge tone={meta.tone}>{meta.label}</Badge>
           </div>
@@ -41,30 +41,42 @@ export function BountyDetail({
         <div>
           <div className="text-[11px] uppercase tracking-wide text-zinc-500">Rubric</div>
           <p className="mt-1 whitespace-pre-wrap break-words text-sm text-zinc-200">
-            {bounty.rubric || "-"}
+            {bounty.rubric || "—"}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-2">
-          <Stat label="Reward" value={formatReward(bounty.reward)} />
-          <Stat label="Submissions" value={bounty.submissionCount.toString()} />
-          <Stat
-            label="Deadline"
-            value={
-              <span>
-                {formatTimestamp(bounty.deadline)}
-                <span className="ml-1 text-xs text-zinc-500">
-                  ({formatRelative(bounty.deadline)})
-                </span>
-              </span>
-            }
-          />
-          <Stat label="Owner" value={shortenAddress(bounty.owner)} />
+        <div className="grid grid-cols-2 gap-2">
+          <Stat label="Reward"    value={formatReward(bounty.reward)} />
+          <Stat label="Committed" value={bounty.totalCommitted.toString()} />
+          <Stat label="Revealed"  value={bounty.totalRevealed.toString()} />
+          <Stat label="Eligible"  value={bounty.totalEligible.toString()} />
+        </div>
+
+        {/* Two-deadline display */}
+        <div className="rounded-lg bg-white/5 px-3 py-2 ring-1 ring-white/10 space-y-1.5 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-zinc-500">Submission deadline</span>
+            <span className="text-zinc-200">
+              {formatTimestamp(bounty.submissionDeadline)}
+              <span className="ml-1 text-zinc-500">({formatRelative(bounty.submissionDeadline)})</span>
+            </span>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-zinc-500">Reveal deadline</span>
+            <span className="text-zinc-200">
+              {formatTimestamp(bounty.revealDeadline)}
+              <span className="ml-1 text-zinc-500">({formatRelative(bounty.revealDeadline)})</span>
+            </span>
+          </div>
+          <div className="flex items-center justify-between gap-2 pt-1 border-t border-white/5">
+            <span className="text-zinc-500">Owner</span>
+            <span className="font-mono text-zinc-300">{shortenAddress(bounty.owner)}</span>
+          </div>
         </div>
 
         {bounty.finalized && (
           <div className="rounded-xl bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200 ring-1 ring-inset ring-emerald-500/30">
-            Finalized, winner is submission{" "}
+            Finalized — winner is submission{" "}
             <span className="font-mono font-semibold">#{bounty.winnerIndex.toString()}</span>.
           </div>
         )}

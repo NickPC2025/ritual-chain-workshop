@@ -5,6 +5,7 @@ import { WalletConnect } from "@/components/WalletConnect";
 import { CreateBountyForm } from "@/components/CreateBountyForm";
 import { LoadBountyPanel } from "@/components/LoadBountyPanel";
 import { BountyView } from "@/components/BountyView";
+import { PlasmaCanvas } from "@/components/PlasmaCanvas";
 import { useRecentBounties } from "@/hooks/useRecentBounties";
 import { isContractConfigured, contractAddress } from "@/config/contract";
 import { ritualChain } from "@/config/wagmi";
@@ -15,8 +16,6 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<bigint | null>(null);
   const { ids, add } = useRecentBounties();
 
-  // Track any opened bounty in the recent list too. `add` is a no-op when the
-  // id is already most-recent, so this won't loop.
   useEffect(() => {
     if (selectedId !== null) add(selectedId);
   }, [selectedId, add]);
@@ -30,81 +29,139 @@ export default function Home() {
   );
 
   return (
-    <div className="min-h-full">
-      {/* Top nav */}
-      <header className="sticky top-0 z-10 border-b border-white/10 bg-zinc-950/70 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-indigo-500 to-emerald-400 text-sm font-bold text-zinc-950">
-              AI
+    <>
+      {/* ── Plasma background canvas ── */}
+      <PlasmaCanvas />
+
+      {/* ── Holographic grid overlay ── */}
+      <div className="holo-grid" />
+
+      {/* ── App shell ── */}
+      <div className="app-root">
+
+        {/* ════════════════ HEADER ════════════════ */}
+        <header className="cyber-header">
+          <div style={{ maxWidth: 1152, margin: "0 auto", padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            {/* Brand */}
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <img
+                src="/lockup.svg"
+                alt="Ritual Logo"
+                className="nav-logo"
+              />
+              <div className="nav-divider" />
+              <div>
+                <div className="nav-app-name">AI Bounty Judge</div>
+                <div className="nav-chain">on {ritualChain.name}</div>
+              </div>
             </div>
-            <div>
-              <h1 className="text-sm font-semibold leading-tight">AI Bounty Judge</h1>
-              <p className="text-[11px] leading-tight text-zinc-500">on {ritualChain.name}</p>
+
+            {/* Wallet */}
+            <WalletConnect />
+          </div>
+        </header>
+
+        {/* ════════════════ MAIN ════════════════ */}
+        <main style={{ maxWidth: 1152, margin: "0 auto", padding: "0 24px 48px" }}>
+
+          {/* ── HERO ── */}
+          <section className="hero-section">
+            {/* Floating logo core */}
+            <div style={{ marginBottom: 40, display: "flex", justifyContent: "center" }}>
+              <div className="logo-core-wrapper">
+                {/* Orbital rings */}
+                <div className="logo-core-ring" />
+                <div className="logo-core-ring" />
+                <div className="logo-core-ring" />
+                {/* Logo */}
+                <img
+                  src="/Neon on Grey.png"
+                  alt="Ritual Infinity Core"
+                  className="logo-core-img"
+                />
+              </div>
             </div>
-          </div>
-          <WalletConnect />
-        </div>
-      </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
-        {/* Hero / explanation */}
-        <section className="mb-6">
-          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Crowd-judged bounties, settled by AI.
-          </h2>
-          <p className="mt-2 max-w-2xl text-sm text-zinc-400">
-            Submit answers to a bounty. After the deadline, Ritual AI ranks all submissions. The
-            bounty owner finalizes the winner.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2 text-xs text-zinc-400">
-            <span className="rounded-full bg-white/5 px-3 py-1 ring-1 ring-inset ring-white/10">
-              AI review is advisory. The owner finalizes the winner.
-            </span>
-            <span className="rounded-full bg-white/5 px-3 py-1 ring-1 ring-inset ring-white/10">
-              All submissions are judged together after the deadline.
-            </span>
-            <span className="rounded-full bg-white/5 px-3 py-1 ring-1 ring-inset ring-white/10">
-              Only one winner receives the bounty reward.
-            </span>
-          </div>
-        </section>
+            {/* Tag line */}
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+              <div className="hero-tag">
+                <div className="hero-tag-dot" />
+                Powered by Ritual Network
+              </div>
+            </div>
 
-        {!isContractConfigured && (
-          <div className="mb-6">
-            <Notice tone="amber">
-              No contract address configured. Copy <code className="font-mono">.env.example</code>{" "}
-              to <code className="font-mono">.env.local</code> and set{" "}
-              <code className="font-mono">NEXT_PUBLIC_CONTRACT_ADDRESS</code> to start interacting
-              on-chain.
-            </Notice>
-          </div>
-        )}
+            {/* Headline */}
+            <h1 className="hero-title">
+              Crowd-Judged Bounties,{" "}
+              <br />
+              <span>Settled by AI.</span>
+            </h1>
 
-        {/* Dashboard: create + load */}
-        <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <CreateBountyForm onCreated={handleCreated} />
-          <LoadBountyPanel selectedId={selectedId} onSelect={setSelectedId} recentIds={ids} />
-        </section>
+            {/* Subtitle */}
+            <p className="hero-subtitle">
+              Submit answers to a bounty. After the deadline, Ritual AI ranks
+              all submissions. The bounty owner finalizes the winner.
+            </p>
 
-        {/* Selected bounty */}
-        {selectedId !== null && (
-          <section className="mt-6">
-            <BountyView bountyId={selectedId} />
+            {/* Feature pills */}
+            <div className="hero-pills">
+              <span className="hero-pill">⬡ AI review is advisory</span>
+              <span className="hero-pill">◈ Commit-reveal privacy</span>
+              <span className="hero-pill">◎ One winner per bounty</span>
+              <span className="hero-pill">⟁ On-chain settlement</span>
+            </div>
           </section>
-        )}
 
-        <footer className="mt-10 border-t border-white/10 pt-4 text-xs text-zinc-600">
-          {contractAddress ? (
-            <>
-              Contract <span className="font-mono">{shortenAddress(contractAddress, 6)}</span> ·
-              Chain {ritualChain.id}
-            </>
-          ) : (
-            <>Workshop demo · {ritualChain.name}</>
+          {/* ── CONTRACT WARNING ── */}
+          {!isContractConfigured && (
+            <div style={{ marginBottom: 24 }}>
+              <Notice tone="amber">
+                No contract address configured. Copy{" "}
+                <code className="monospace">.env.example</code> to{" "}
+                <code className="monospace">.env.local</code> and set{" "}
+                <code className="monospace">NEXT_PUBLIC_CONTRACT_ADDRESS</code>{" "}
+                to start interacting on-chain.
+              </Notice>
+            </div>
           )}
-        </footer>
-      </main>
-    </div>
+
+          {/* ── DASHBOARD GRID ── */}
+          <section
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+              gap: 20,
+            }}
+          >
+            <CreateBountyForm onCreated={handleCreated} />
+            <LoadBountyPanel
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              recentIds={ids}
+            />
+          </section>
+
+          {/* ── SELECTED BOUNTY VIEW ── */}
+          {selectedId !== null && (
+            <section style={{ marginTop: 24 }}>
+              <BountyView bountyId={selectedId} />
+            </section>
+          )}
+
+          {/* ── FOOTER ── */}
+          <footer className="cyber-footer">
+            {contractAddress ? (
+              <>
+                Contract&nbsp;
+                <span className="monospace">{shortenAddress(contractAddress, 6)}</span>
+                &nbsp;·&nbsp;Chain {ritualChain.id}&nbsp;·&nbsp;Ritual Network
+              </>
+            ) : (
+              <>Workshop demo · {ritualChain.name}</>
+            )}
+          </footer>
+        </main>
+      </div>
+    </>
   );
 }

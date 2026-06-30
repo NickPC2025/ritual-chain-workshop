@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   useAccount,
   useConnect,
@@ -19,21 +19,29 @@ export function WalletConnect() {
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   const wrongChain = isConnected && chainId !== ritualChain.id;
 
+  if (!mounted) return <div style={{ height: 36 }} />;
+
   if (isConnected && address) {
     return (
-      <div className="flex items-center gap-2">
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         {wrongChain ? (
           <Button
             variant="secondary"
             onClick={() => switchChain({ chainId: ritualChain.id })}
           >
-            Switch to {ritualChain.name}
+            ⚠ Switch to {ritualChain.name}
           </Button>
         ) : (
-          <Badge tone="green">{ritualChain.name}</Badge>
+          <Badge tone="green">
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor", display: "inline-block", marginRight: 4, boxShadow: "0 0 6px currentColor" }} />
+            {ritualChain.name}
+          </Badge>
         )}
         <Button variant="secondary" onClick={() => disconnect()}>
           {shortenAddress(address)}
@@ -42,7 +50,7 @@ export function WalletConnect() {
     );
   }
 
-  // Dedupe connectors by name (injected + metaMask can overlap).
+  // Dedupe connectors by name
   const seen = new Set<string>();
   const list = connectors.filter((c) => {
     if (seen.has(c.name)) return false;
@@ -51,14 +59,25 @@ export function WalletConnect() {
   });
 
   return (
-    <div className="relative">
-      <Button onClick={() => setOpen((v) => !v)} disabled={isPending}>
-        {isPending ? "Connecting…" : "Connect Wallet"}
+    <div style={{ position: "relative" }}>
+      <Button
+        onClick={() => setOpen((v) => !v)}
+        disabled={isPending}
+      >
+        {isPending ? (
+          <>
+            <span className="spinner" style={{ width: 12, height: 12 }} />
+            Connecting…
+          </>
+        ) : (
+          <>⬡ Connect Wallet</>
+        )}
       </Button>
+
       {open && (
-        <div className="absolute right-0 z-20 mt-2 w-52 overflow-hidden rounded-xl border border-white/10 bg-zinc-900 shadow-xl">
+        <div className="wallet-dropdown">
           {list.length === 0 && (
-            <div className="px-3 py-2 text-xs text-zinc-500">
+            <div style={{ padding: "10px 16px", fontSize: 12, color: "rgba(0,255,136,0.35)" }}>
               No wallet connectors found.
             </div>
           )}
@@ -69,7 +88,7 @@ export function WalletConnect() {
                 connect({ connector });
                 setOpen(false);
               }}
-              className="block w-full px-3 py-2 text-left text-sm text-zinc-200 hover:bg-white/10"
+              className="wallet-option"
             >
               {connector.name}
             </button>

@@ -59,13 +59,22 @@ export function useWriteTx(onConfirmed?: (receipt: TransactionReceipt) => void) 
     mutateAsync: writeContractAsync,
   } = useWriteContract();
 
+  const onConfirmedRef = useRef(onConfirmed);
+  useEffect(() => {
+    onConfirmedRef.current = onConfirmed;
+  }, [onConfirmed]);
+
   const {
     data: receipt,
     isLoading: isConfirming,
     isSuccess: isConfirmed,
     isError: isReceiptError,
     error: receiptError,
-  } = useWaitForTransactionReceipt({ hash });
+  } = useWaitForTransactionReceipt({
+    hash,
+    pollingInterval: 2_000,
+    timeout: 300_000,
+  });
 
   // Local error from the submit step. The receipt error is derived (below),
   // so we never copy it into state from an effect.
@@ -78,9 +87,9 @@ export function useWriteTx(onConfirmed?: (receipt: TransactionReceipt) => void) 
   useEffect(() => {
     if (isConfirmed && receipt && !notifiedRef.current) {
       notifiedRef.current = true;
-      onConfirmed?.(receipt);
+      onConfirmedRef.current?.(receipt);
     }
-  }, [isConfirmed, receipt, onConfirmed]);
+  }, [isConfirmed, receipt]);
 
   const error =
     submitError ?? (isReceiptError && receiptError ? describeError(receiptError) : null);

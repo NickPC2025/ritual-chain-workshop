@@ -14,9 +14,12 @@ export function formatReward(wei?: bigint, symbol = "RITUAL"): string {
 }
 
 /** Unix seconds -> local date string. */
-export function formatTimestamp(unixSeconds?: bigint | number): string {
-  if (unixSeconds === undefined) return "-";
-  const ms = Number(unixSeconds) * 1000;
+export function formatTimestamp(unixSecondsOrMs?: bigint | number): string {
+  if (unixSecondsOrMs === undefined) return "-";
+  let ms = Number(unixSecondsOrMs);
+  // If the value is reasonably small (e.g., < year 5138), assume it's seconds and convert.
+  // This handles both standard EVM timestamps (seconds) and Ritual testnet (milliseconds).
+  if (ms < 1e11) ms *= 1000;
   if (!Number.isFinite(ms) || ms <= 0) return "-";
   return new Date(ms).toLocaleString(undefined, {
     dateStyle: "medium",
@@ -25,9 +28,10 @@ export function formatTimestamp(unixSeconds?: bigint | number): string {
 }
 
 /** Compact "in 2h 5m" / "3m ago" style relative label. */
-export function formatRelative(unixSeconds?: bigint | number): string {
-  if (unixSeconds === undefined) return "";
-  const target = Number(unixSeconds) * 1000;
+export function formatRelative(unixSecondsOrMs?: bigint | number): string {
+  if (unixSecondsOrMs === undefined) return "";
+  let target = Number(unixSecondsOrMs);
+  if (target < 1e11) target *= 1000;
   const diffMs = target - Date.now();
   const past = diffMs < 0;
   let s = Math.abs(Math.floor(diffMs / 1000));

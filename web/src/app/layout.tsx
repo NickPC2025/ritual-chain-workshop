@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Bounty Judge",
+  title: "AI Bounty Judge — Ritual Network",
   description:
-    "Submit answers to a bounty. After the deadline, Ritual AI ranks all submissions. The bounty owner finalizes the winner.",
+    "Crowd-judged bounties settled by AI on the Ritual Network. Submit answers, reveal after deadline, and let on-chain AI rank all submissions.",
 };
 
 export default function RootLayout({
@@ -27,9 +27,17 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full`}
     >
-      <body className="min-h-full bg-zinc-950 text-zinc-100">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="antialiased" style={{ background: '#000000', color: '#e8fff5', fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}>
         <Providers>{children}</Providers>
       </body>
     </html>
